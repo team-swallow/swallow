@@ -17,8 +17,31 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm() {
+  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleLoginWithEmail = async () => {
+    const supabase = createClient();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          // set this to false if you do not want the user to be automatically signed up
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLoginWithGoogle = async () => {
     const supabase = createClient();
@@ -61,6 +84,8 @@ export default function LoginForm() {
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -79,8 +104,13 @@ export default function LoginForm() {
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Login
+        <Button
+          variant="default"
+          disabled={isLoading}
+          onClick={handleLoginWithEmail}
+          className="w-full"
+        >
+          Login with Email
         </Button>
         <Button
           variant="outline"
