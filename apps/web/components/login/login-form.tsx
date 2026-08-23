@@ -10,8 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +24,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   const handleLoginWithEmail = async () => {
     const supabase = createClient();
@@ -36,6 +41,7 @@ export default function LoginForm() {
         },
       });
       if (error) throw error;
+      setSentTo(email);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -76,42 +82,47 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-          </div>
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              value={email}
+              disabled={!!sentTo}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {sentTo && (
+              <FieldDescription>
+                We sent a Magic Link. Click the link to log in.
+              </FieldDescription>
+            )}
+          </Field>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button
-          variant="default"
-          disabled={isLoading}
-          onClick={handleLoginWithEmail}
-          className="w-full"
-        >
-          Login with Email
-        </Button>
+        {!sentTo ? (
+          <Button
+            variant="default"
+            disabled={isLoading}
+            onClick={handleLoginWithEmail}
+            className="w-full"
+          >
+            Login with Email
+          </Button>
+        ) : (
+          <Button
+            variant="default"
+            onClick={() => {
+              setEmail("");
+              setSentTo(null);
+            }}
+            className="w-full"
+          >
+            Login with Another Email
+          </Button>
+        )}
         <Button
           variant="outline"
           disabled={isLoading}
