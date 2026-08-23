@@ -12,6 +12,8 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^1.33.0",
     "next": "16.2.6",
