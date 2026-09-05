@@ -1,10 +1,10 @@
+import type { JwtPayload } from "@supabase/supabase-js";
+
 import AccountForm from "@/components/account/account-form";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth";
 
 export default async function AccountPage() {
-  const supabase = await createClient();
+  const claims: JwtPayload = await requireAuth();
 
-  const { data: claimsData } = await supabase.auth.getClaims();
-
-  return <AccountForm claims={claimsData?.claims ?? null} />;
+  return <AccountForm claims={claims} />;
 }

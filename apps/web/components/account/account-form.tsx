@@ -1,13 +1,16 @@
 "use client";
 
+import type { JwtPayload } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
 
 import Avatar from "@/components/account/avatar";
 import { createClient } from "@/lib/supabase/client";
 
-type Claims = { sub: string; email?: string; [key: string]: unknown };
+type Props = {
+  claims: JwtPayload;
+};
 
-export default function AccountForm({ claims }: { claims: Claims | null }) {
+export default function AccountForm({ claims }: Props) {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);
